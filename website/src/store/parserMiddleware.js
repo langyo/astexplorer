@@ -10,7 +10,7 @@ function parse(parser, code, parserSettings) {
       realParser,
       code,
       parserSettings || parser.getDefaultOptions(),
-    )
+    ),
   );
 }
 
@@ -58,6 +58,7 @@ export default store => next => action => {
               locationInformationFilter(newParser.locationProps),
               typeKeysFilter(newParser.typeProps),
             ],
+            locationProps: newParser.locationProps,
           },
         };
         next({
@@ -81,7 +82,7 @@ export default store => next => action => {
             error,
           },
         });
-      }
+      },
     );
   }
 

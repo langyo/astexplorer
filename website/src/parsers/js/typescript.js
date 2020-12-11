@@ -7,6 +7,11 @@ const FILENAME = 'astExplorer.ts';
 let getComments;
 const syntaxKind = {};
 
+// Typescript uses `process` somehow
+if (!global.process) {
+  global.process = {}
+}
+
 export default {
   ...defaultParserInterface,
 
@@ -90,30 +95,33 @@ export default {
   },
 
   _ignoredProperties: new Set([
+    'file',
     'parent',
   ]),
 
   *forEachProperty(node) {
-    for (let prop in node) {
-      if (this._ignoredProperties.has(prop) || prop.charAt(0) === '_') {
-        continue;
+    if (node && typeof node === 'object') {
+      for (let prop in node) {
+        if (this._ignoredProperties.has(prop) || prop.charAt(0) === '_') {
+          continue;
+        }
+        yield {
+          value: node[prop],
+          key: prop,
+        };
       }
-      yield {
-        value: node[prop],
-        key: prop,
-      };
-    }
-    if (node.parent) {
-      yield {
-        value: getComments(node),
-        key: 'leadingComments',
-        computed: true,
-      };
-      yield {
-        value: getComments(node, true),
-        key: 'trailingComments',
-        computed: true,
-      };
+      if (node.parent) {
+        yield {
+          value: getComments(node),
+          key: 'leadingComments',
+          computed: true,
+        };
+        yield {
+          value: getComments(node, true),
+          key: 'trailingComments',
+          computed: true,
+        };
+      }
     }
   },
 
@@ -127,7 +135,7 @@ export default {
     }
   },
 
-  opensByDefault(node, key) {
+  opensByDefault(_, key) {
     return (
       key === 'statements' ||
       key === 'declarationList' ||
@@ -138,7 +146,6 @@ export default {
   getDefaultOptions() {
     return {
       experimentalDecorators: true,
-      experimentalAsyncFunctions: true,
       jsx: true,
     };
   },

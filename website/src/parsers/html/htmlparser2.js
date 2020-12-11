@@ -14,7 +14,7 @@ export default {
   typeProps: new Set(['type', 'name']),
 
   loadParser(callback) {
-    require(['htmlparser2/lib/Parser', 'domhandler'], (Parser, DomHandler) => {
+    require(['htmlparser2/lib/Parser', 'domhandler'], (Parser, {DomHandler}) => {
       class Handler extends DomHandler {
         constructor() {
           super({ withStartIndices: true });
@@ -25,7 +25,7 @@ export default {
         }
 
         onprocessinginstruction(name, data) {
-          this._parser.endIndex = this._parser._tokenizer._index;
+          this._parser.endIndex = this._parser.tokenizer._index;
           super.onprocessinginstruction(name, data);
         }
 
@@ -46,7 +46,7 @@ export default {
     });
   },
 
-  parse({ Parser, Handler }, code, options) {
+  parse({ Parser: {Parser}, Handler }, code, options) {
     let handler = new Handler();
     new Parser(handler, options).end(code);
     return handler.dom;
@@ -78,5 +78,5 @@ export default {
     };
   },
 
-  _ignoredProperties: new Set(['prev', 'next', 'parent', 'endIndex']),
+  _ignoredProperties: new Set(['prev', 'next', 'parent', 'parentNode', 'endIndex']),
 };
